@@ -145,6 +145,7 @@ function(DefineCLAPASVST3Sources)
 		src/detail/clap/fsutil.cpp
 		src/detail/os/osutil.h
 		src/detail/clap/automation.h
+		src/detail/ara/ara.h
 		${os_wrappersources}
 	PARENT_SCOPE)
 

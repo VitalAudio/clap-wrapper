@@ -12,7 +12,7 @@
 		When the VST3 factory is being scanned, this tries to locate a clap_entry function
 		in the following order and stops if a .clap binary has been found:
 
-		1) checks for exported `clap_enty` in this binary itself (statically linked wrapper)
+		1) checks for exported `clap_entry` in this binary itself (statically linked wrapper)
 		2) determines it's own filename without the .vst3 ending and determines a list of all valid CLAP search paths (see below) and
 		   a) checks each CLAP search path for a matching .clap
 			 b) checks it's own parent folder name and tries to add it to the .clap path. This allows a vst3 wrapper placed in

@@ -20,12 +20,14 @@
 
 #include "clapwrapper/vst3.h"
 
+
 #if MAC
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
 namespace Clap
 {
+  struct clap_plugin_ara_mainfactory_t;
 
   std::vector<std::filesystem::path> getValidCLAPSearchPaths();
   class Plugin;
@@ -41,6 +43,7 @@ namespace Clap
     const clap_plugin_entry_t* _pluginEntry = nullptr;
     const clap_plugin_factory_t* _pluginFactory = nullptr;
     const clap_plugin_factory_as_vst3* _pluginFactoryVst3Info = nullptr;
+    const clap_plugin_ara_mainfactory_t* _pluginFactoryARAInfo = nullptr;
     std::vector<const clap_plugin_descriptor_t*> plugins;
     const clap_plugin_info_as_vst3_t* get_vst3_info(uint32_t index);
 
