@@ -84,6 +84,7 @@ namespace Clap
     const clap_plugin_render_t* _render = nullptr;
     const clap_plugin_tail_t* _tail = nullptr;
     const clap_plugin_timer_support_t* _timer = nullptr;
+    const clap_ara_plugin_extension_t* _ara = nullptr;
   };
 
   class Raise

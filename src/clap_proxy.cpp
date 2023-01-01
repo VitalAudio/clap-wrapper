@@ -175,6 +175,7 @@ namespace Clap
     getExtension(_plugin, _ext._tail, CLAP_EXT_TAIL);
     getExtension(_plugin, _ext._gui, CLAP_EXT_GUI);
     getExtension(_plugin, _ext._timer, CLAP_EXT_TIMER_SUPPORT);
+    getExtension(_plugin, _ext._ara, CLAP_EXT_ARA_PLUGIN_EXTENSION);
 
     if (_ext._gui)
     {

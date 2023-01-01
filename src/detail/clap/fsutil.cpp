@@ -14,8 +14,6 @@
 #include <Windows.h>
 #endif
 
-#include "../ara/ara.h"
-
 #if MAC
 #include <CoreFoundation/CoreFoundation.h>
 #endif
@@ -198,7 +196,7 @@ namespace Clap
                   static_cast<const clap_plugin_factory_as_vst3*>(_pluginEntry->get_factory(CLAP_PLUGIN_FACTORY_INFO_VST3));
 
            _pluginFactoryARAInfo =
-                  static_cast<const clap_plugin_ara_mainfactory_t*>(_pluginEntry->get_factory(CLAP_EXT_ARA_MAINFACTORY));
+                  static_cast<const clap_ara_factory_t*>(_pluginEntry->get_factory(CLAP_EXT_ARA_FACTORY));
 
            // detect plugins that do not check the CLAP_PLUGIN_FACTORY_ID
            if ((void*)_pluginFactory == (void*)_pluginFactoryVst3Info)

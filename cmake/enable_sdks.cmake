@@ -139,6 +139,7 @@ function(DefineCLAPASVST3Sources)
 		src/detail/vst3/process.cpp
 		src/detail/vst3/categories.h
 		src/detail/vst3/categories.cpp
+		src/detail/vst3/aravst3.h
 		src/detail/sha1.h
 		src/detail/sha1.cpp
 		src/detail/clap/fsutil.h

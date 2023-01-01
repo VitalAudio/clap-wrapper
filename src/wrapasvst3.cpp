@@ -22,6 +22,8 @@
 #define S16(x) u ## x
 #endif
 
+DEF_CLASS_IID(ARA::IPlugInEntryPoint2)
+
 struct ClapHostExtensions
 {
   static inline ClapAsVst3* self(const clap_host_t* host)
@@ -271,12 +273,15 @@ tresult ClapAsVst3::getNoteExpressionValueByString(int32 busIndex, int16 channel
 
 #endif
 
-////-----------------------------------------------------------------------------
-//tresult PLUGIN_API ClapAsVst3::queryInterface(const TUID iid, void** obj)
-//{
-//	  DEF_INTERFACE(IMidiMapping)
-//		return SingleComponentEffect::queryInterface(iid, obj);
-//}
+const ARAPlugInExtensionInstancePtr PLUGIN_API ClapAsVst3::bindToDocumentControllerWithRoles(ARADocumentControllerRef documentControllerRef,
+  ARAPlugInInstanceRoleFlags knownRoles, ARAPlugInInstanceRoleFlags assignedRoles)
+{
+  if (_plugin->_ext._ara)
+  {
+    return _plugin->_ext._ara->bind_to_document_controller(_plugin->_plugin, documentControllerRef, knownRoles, assignedRoles);
+  }
+  return nullptr;
+}
 
 static Vst::SpeakerArrangement speakerArrFromPortType(const char* port_type)
 {
@@ -420,6 +425,11 @@ Vst::UnitID ClapAsVst3::getUnitInfo(const char* modulename)
 }
 
 // Clap::IHost
+
+//tresult PLUGIN_API ClapAsVst3::queryInterface(const TUID iid, void** obj)
+//{
+//  return SingleComponentEffect::queryInterface(iid, obj);
+//}
 
 void ClapAsVst3::setupWrapperSpecifics(const clap_plugin_t* plugin)
 {
@@ -803,6 +813,5 @@ void ClapAsVst3::onIdle()
     }
   }
 
-  
-
 }
+

@@ -21,6 +21,8 @@
 #include "detail/vst3/plugview.h"
 #include "detail/os/osutil.h"
 #include "detail/clap/automation.h"
+#include "detail/ara/ara.h"
+#include "detail/vst3/aravst3.h"
 #include <mutex>
 
 using namespace Steinberg;
@@ -84,6 +86,7 @@ public:
 class ClapAsVst3 : public Steinberg::Vst::SingleComponentEffect
 	, public Steinberg::Vst::IMidiMapping
 	, public Steinberg::Vst::INoteExpressionController
+	, public ARA::IPlugInEntryPoint2
 	, public Clap::IHost
 	, public Clap::IAutomation
 	, public os::IPlugObject
@@ -98,6 +101,10 @@ public:
 		: super()
 		, Steinberg::Vst::IMidiMapping()
  		, Steinberg::Vst::INoteExpressionController()
+		, ARA::IPlugInEntryPoint2()
+		, Clap::IHost()
+		, Clap::IAutomation()
+		, os::IPlugObject()
 		, _library(lib)
 		, _libraryIndex(number)
 		, _creationcontext(context) {}
@@ -142,15 +149,24 @@ public:
 	/** Converts the user readable representation to the normalized note change value. */
 	tresult PLUGIN_API getNoteExpressionValueByString(int32 busIndex, int16 channel, Vst::NoteExpressionTypeID id, const Vst::TChar* string /*in*/, Vst::NoteExpressionValue& valueNormalized /*out*/ ) override;
 #endif
+
+	//----from ARA::IPlugInEntryPoint2
+	const ARAPlugInExtensionInstancePtr PLUGIN_API bindToDocumentControllerWithRoles(ARADocumentControllerRef documentControllerRef,
+		ARAPlugInInstanceRoleFlags knownRoles, ARAPlugInInstanceRoleFlags assignedRoles);
+
 	//---Interface--------------------------------------------------------------------------
 	OBJ_METHODS(ClapAsVst3, SingleComponentEffect)
-	DEFINE_INTERFACES
-	DEF_INTERFACE(IMidiMapping)
-	DEF_INTERFACE(INoteExpressionController)
-	// tresult PLUGIN_API queryInterface(const TUID iid, void** obj) override;
+		DEFINE_INTERFACES
+		DEF_INTERFACE(IMidiMapping)
+		DEF_INTERFACE(INoteExpressionController)
+		if (_plugin->_ext._ara)
+		{
+			DEF_INTERFACE(IPlugInEntryPoint2)
+		}
 	END_DEFINE_INTERFACES(SingleComponentEffect)
 	REFCOUNT_METHODS(SingleComponentEffect);
 	
+	// tresult PLUGIN_API queryInterface(const TUID iid, void** obj) override;
 
 
 	//---Clap::IHost------------------------------------------------------------------------
