@@ -40,21 +40,17 @@ tresult PLUGIN_API ClapAsVst3::initialize(FUnknown* context)
   auto result = super::initialize(context);
   if (result == kResultOk)
   {
-    if (!_plugin)
-    {
-      _plugin = Clap::Plugin::createInstance(*_library, _libraryIndex, this);
-    }
     result = (_plugin->initialize()) ? kResultOk : kResultFalse;
   }
-  if (_plugin)
-  {
-
-  }
+  _processAdapter = new Clap::ProcessAdapter();
   return result;
 }
 
 tresult PLUGIN_API ClapAsVst3::terminate()
 {
+  delete _processAdapter;
+  _processAdapter = nullptr;
+  ::os::detach(this);
   if (_plugin)
   {
     _plugin->terminate();
@@ -72,7 +68,7 @@ tresult PLUGIN_API ClapAsVst3::setActive(TBool state)
     if (!_plugin->activate())
       return kResultFalse;
     _active = true;
-    _processAdapter = new Clap::ProcessAdapter();
+    
     os::attach(this);
   }
   if (!state)
@@ -83,8 +79,6 @@ tresult PLUGIN_API ClapAsVst3::setActive(TBool state)
       _plugin->deactivate();
     }
     _active = false;
-    delete _processAdapter;
-    _processAdapter = nullptr;
   }
   return super::setActive(state);
 }

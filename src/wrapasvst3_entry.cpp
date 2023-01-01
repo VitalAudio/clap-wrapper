@@ -48,6 +48,7 @@
 #include "detail/sha1.h"
 #include "wrapasvst3.h"
 #include "public.sdk/source/main/pluginfactory.h"
+#include "base/source/fobject.h"
 #include <iostream>
 #include <array>
 
@@ -125,7 +126,7 @@ bool findPlugin(Clap::Library& lib, const std::string& pluginfilename)
 SMTG_EXPORT_SYMBOL IPluginFactory* PLUGIN_API GetPluginFactory() {
 
 #if _DEBUG
-  // MessageBoxA(NULL,"halt","me",MB_OK); // <- enable this on Windows to get a debug attachment to vstscanner.exe (subprocess of cbse)
+  // MessageBoxA(NULL,"halt ARA","ARA",MB_OK); // <- enable this on Windows to get a debug attachment to vstscanner.exe (subprocess of cbse)
 #endif
 
 #if SMTG_OS_WINDOWS
@@ -337,6 +338,39 @@ SMTG_EXPORT_SYMBOL IPluginFactory* PLUGIN_API GetPluginFactory() {
 	return gPluginFactory; 
 }
 
+class ARAMainFactory : public ARA::IMainFactory
+{
+public:
+	ARAMainFactory(ARAFactoryPtr factory, Steinberg::FUID uid)
+		: ARA::IMainFactory()
+		, _arafactory(factory)
+		, _uid(uid)
+	{
+		FUNKNOWN_CTOR
+	}
+	const ARAFactoryPtr PLUGIN_API getFactory() override
+	{
+		return _arafactory;
+	}
+	//---Interface--------------------------------------------------------------------------
+	DECLARE_FUNKNOWN_METHODS
+
+	// Class ID
+	const Steinberg::FUID getClassFUID()
+	{
+		return _uid;
+	}
+
+private:
+	ARAFactoryPtr _arafactory = nullptr;
+	Steinberg::FUID _uid;
+};
+
+IMPLEMENT_FUNKNOWN_METHODS(ARAMainFactory, ARA::IMainFactory, ARA::IMainFactory::iid)
+
+
+DEF_CLASS_IID(ARA::IMainFactory)
+
 /*
 *		creates an Instance from the creationContext.
 *		actually, there is always a valid entrypoint, otherwise no factory would have been provided.
@@ -350,18 +384,19 @@ FUnknown* ClapAsVst3::createInstance(void* context)
 		LOGINFO("creating plugin {} (#{})", ctx->classinfo.name, ctx->index);
 		if (ctx->lib->hasEntryPoint())
 		{
-			// MessageBoxA(NULL, "halt", "create", MB_OK);
+			// MessageBoxA(NULL, "create ClapAsVst3", "create", MB_OK);
 			return (IAudioProcessor*)new ClapAsVst3(ctx->lib, ctx->index, context);
 		}
 	}
 
 	if (!strcmp(ctx->classinfo.category, kARAMainFactoryClass))
 	{
-		LOGINFO("creating ARA plugin {} (#{})", ctx->classinfo.name, ctx->index);
+		LOGINFO("creating ARAMainFactory {} (#{})", ctx->classinfo.name, ctx->index);
 		if (ctx->lib->hasEntryPoint())
 		{
+			// MessageBoxA(NULL, "create ARA halt", "create ARA", MB_OK);
 			const auto ara_factory = ctx->lib->_pluginFactoryARAInfo;
-			return (FUnknown *) ara_factory->get_ara_factory(ara_factory, ctx->index);
+			return static_cast<FUnknown*>(new ARAMainFactory(ara_factory->get_ara_factory(ara_factory, ctx->index),Steinberg::FUID(ctx->classinfo.cid)));
 		}
 	}
 

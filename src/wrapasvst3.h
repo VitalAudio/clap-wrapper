@@ -107,7 +107,13 @@ public:
 		, os::IPlugObject()
 		, _library(lib)
 		, _libraryIndex(number)
-		, _creationcontext(context) {}
+		, _creationcontext(context) 
+	{
+		if (!_plugin)
+		{
+			_plugin = Clap::Plugin::createInstance(*_library, _libraryIndex, this);
+		}
+	}
 
 	//---from IComponent-----------------------
 	tresult PLUGIN_API initialize(FUnknown* context) override;
