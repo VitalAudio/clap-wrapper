@@ -109,10 +109,7 @@ public:
 		, _libraryIndex(number)
 		, _creationcontext(context) 
 	{
-		if (!_plugin)
-		{
-			_plugin = Clap::Plugin::createInstance(*_library, _libraryIndex, this);
-		}
+  	_plugin = Clap::Plugin::createInstance(*_library, _libraryIndex, this);
 	}
 
 	//---from IComponent-----------------------
