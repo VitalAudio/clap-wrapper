@@ -270,6 +270,7 @@ tresult ClapAsVst3::getNoteExpressionValueByString(int32 busIndex, int16 channel
 const ARAPlugInExtensionInstancePtr PLUGIN_API ClapAsVst3::bindToDocumentControllerWithRoles(ARADocumentControllerRef documentControllerRef,
   ARAPlugInInstanceRoleFlags knownRoles, ARAPlugInInstanceRoleFlags assignedRoles)
 {
+  LOGDETAIL("-> ARA::bindToDocumentControllerWithRoles");
   if (_plugin->_ext._ara)
   {
     return _plugin->_ext._ara->bind_to_document_controller(_plugin->_plugin, documentControllerRef, knownRoles, assignedRoles);

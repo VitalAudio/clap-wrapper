@@ -153,7 +153,7 @@ public:
 	tresult PLUGIN_API getNoteExpressionValueByString(int32 busIndex, int16 channel, Vst::NoteExpressionTypeID id, const Vst::TChar* string /*in*/, Vst::NoteExpressionValue& valueNormalized /*out*/ ) override;
 #endif
 
-	//----from ARA::IPlugInEntryPoint2
+	//----from ARA::IPlugInEntryPoint2---------------------------
 	const ARAPlugInExtensionInstancePtr PLUGIN_API bindToDocumentControllerWithRoles(ARADocumentControllerRef documentControllerRef,
 		ARAPlugInInstanceRoleFlags knownRoles, ARAPlugInInstanceRoleFlags assignedRoles);
 

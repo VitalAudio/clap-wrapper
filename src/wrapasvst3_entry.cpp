@@ -125,12 +125,12 @@ bool findPlugin(Clap::Library& lib, const std::string& pluginfilename)
 
 SMTG_EXPORT_SYMBOL IPluginFactory* PLUGIN_API GetPluginFactory() {
 
+#if WIN32
 #if _DEBUG
-  // MessageBoxA(NULL,"halt ARA","ARA",MB_OK); // <- enable this on Windows to get a debug attachment to vstscanner.exe (subprocess of cbse)
+	{
+		// MessageBoxA(NULL, "attach debugger now", "GetPluginFactory()", MB_OK); // <- enable this on Windows to get a debug attachment to vstscanner.exe (subprocess of cbse)
+	}
 #endif
-
-#if SMTG_OS_WINDOWS
-// #pragma comment(linker, "/EXPORT:" __FUNCTION__ "=" __FUNCDNAME__)
 #endif
 
 	// static IPtr<Steinberg::CPluginFactory> gPluginFactory = nullptr;
@@ -394,7 +394,6 @@ FUnknown* ClapAsVst3::createInstance(void* context)
 		LOGINFO("creating ARAMainFactory {} (#{})", ctx->classinfo.name, ctx->index);
 		if (ctx->lib->hasEntryPoint())
 		{
-			// MessageBoxA(NULL, "create ARA halt", "create ARA", MB_OK);
 			const auto ara_factory = ctx->lib->_pluginFactoryARAInfo;
 			return static_cast<FUnknown*>(new ARAMainFactory(ara_factory->get_ara_factory(ara_factory, ctx->index),Steinberg::FUID(ctx->classinfo.cid)));
 		}
