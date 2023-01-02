@@ -136,7 +136,7 @@ SMTG_EXPORT_SYMBOL IPluginFactory* PLUGIN_API GetPluginFactory() {
 	// static IPtr<Steinberg::CPluginFactory> gPluginFactory = nullptr;
 	static Clap::Library gClapLibrary;
 
-	static std::vector<CreationContext> gCreationContexts;
+	static std::vector<std::shared_ptr<CreationContext>> gCreationContexts;
 
 	// if there is no ClapLibrary yet
 	if (!gClapLibrary._pluginFactory)
@@ -272,8 +272,8 @@ SMTG_EXPORT_SYMBOL IPluginFactory* PLUGIN_API GetPluginFactory() {
 				LOGDETAIL("plugin id: {} -> {}", clapdescr->id,x);
 			}
 #endif
-
-			gCreationContexts.push_back({ &gClapLibrary, ctr, PClassInfo2(
+			std::shared_ptr<CreationContext> ptr = std::make_shared<CreationContext>();
+			*ptr = { &gClapLibrary, ctr, PClassInfo2(
 				lcid,
 				PClassInfo::kManyInstances,
 				kVstAudioEffectClass,
@@ -283,8 +283,10 @@ SMTG_EXPORT_SYMBOL IPluginFactory* PLUGIN_API GetPluginFactory() {
 				pluginvendor,
 				clapdescr->version,
 				kVstVersionString)
-				});
-			gPluginFactory->registerClass(&gCreationContexts.back().classinfo, ClapAsVst3::createInstance, &gCreationContexts.back());
+			};
+
+			gCreationContexts.push_back(ptr);
+			gPluginFactory->registerClass(&gCreationContexts.back()->classinfo, ClapAsVst3::createInstance, gCreationContexts.back().get());
 		}
 
 		if (gClapLibrary._pluginFactoryARAInfo)
@@ -295,6 +297,7 @@ SMTG_EXPORT_SYMBOL IPluginFactory* PLUGIN_API GetPluginFactory() {
 			for (decltype(count) i = 0; i < count; ++i)
 			{
 				auto matching_plugin = factory->get_plugin_id(factory, i);
+				LOGDETAIL("number of ARA plugins: {}", numPlugins);
 				for (int ctr = 0; ctr < numPlugins; ++ctr)
 				{
 					auto& clapdescr = gClapLibrary.plugins[ctr];
@@ -311,19 +314,20 @@ SMTG_EXPORT_SYMBOL IPluginFactory* PLUGIN_API GetPluginFactory() {
 						n.append(" (CLAP->VST3)");
 #endif
 						auto plugname = n.c_str(); //  clapdescr->name;
-
-						gCreationContexts.push_back({ &gClapLibrary, (int) i, PClassInfo2(
+						std::shared_ptr<CreationContext> ptr = std::make_shared<CreationContext>();
+						*ptr = { &gClapLibrary, (int)i, PClassInfo2(
 							lcid,
 							PClassInfo::kManyInstances,
 							kARAMainFactoryClass,
 							plugname,
-							0, 
+							0,
 							"", /* not used in this context */
 							"", /* not used in this context */
 							clapdescr->version,
 							kVstVersionString)
-													});
-						gPluginFactory->registerClass(&gCreationContexts.back().classinfo, ClapAsVst3::createInstance, &gCreationContexts.back());
+						};
+						gCreationContexts.push_back(ptr);
+						gPluginFactory->registerClass(&gCreationContexts.back()->classinfo, ClapAsVst3::createInstance, gCreationContexts.back().get());
 
 						break;
 					}

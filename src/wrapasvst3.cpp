@@ -22,6 +22,7 @@
 #define S16(x) u ## x
 #endif
 
+DEF_CLASS_IID(ARA::IPlugInEntryPoint)
 DEF_CLASS_IID(ARA::IPlugInEntryPoint2)
 
 struct ClapHostExtensions
@@ -267,10 +268,27 @@ tresult ClapAsVst3::getNoteExpressionValueByString(int32 busIndex, int16 channel
 
 #endif
 
+const ARAFactoryPtr PLUGIN_API ClapAsVst3::getFactory()
+{
+  LOGDETAIL("-> ARA::IPlugInEntryPoint::getFactory");
+  if (_plugin->_ext._ara)
+  {
+    return _plugin->_ext._ara->get_factory(_plugin->_plugin);
+  }
+  return nullptr;
+}
+
+const ARAPlugInExtensionInstancePtr PLUGIN_API ClapAsVst3::bindToDocumentController(ARADocumentControllerRef documentControllerRef)
+{
+  LOGDETAIL("-> ARA::IPlugInEntryPoint::bindToDocumentController (!!! DEPRECATED !!!)");
+  // "call is deprecated in ARA 2, host must not call this"
+  return nullptr;
+}
+
 const ARAPlugInExtensionInstancePtr PLUGIN_API ClapAsVst3::bindToDocumentControllerWithRoles(ARADocumentControllerRef documentControllerRef,
   ARAPlugInInstanceRoleFlags knownRoles, ARAPlugInInstanceRoleFlags assignedRoles)
 {
-  LOGDETAIL("-> ARA::bindToDocumentControllerWithRoles");
+  LOGDETAIL("-> ARA::IPlugInEntryPoint2::bindToDocumentControllerWithRoles");
   if (_plugin->_ext._ara)
   {
     return _plugin->_ext._ara->bind_to_document_controller(_plugin->_plugin, documentControllerRef, knownRoles, assignedRoles);

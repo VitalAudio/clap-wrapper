@@ -7,7 +7,9 @@
 
 // these interfaces are copied from the ARA SDK to maintain compatibility without the full ARA SDK
 
+#define ARA_DEPRECATED(x)
 #define ARA_ADDENDUM(x)
+
 namespace ARA
 {
 	/***************************************************************************************************/
@@ -42,6 +44,34 @@ namespace ARA
 #endif
 
 	DECLARE_CLASS_IID(IMainFactory, 0xDB2A1669, 0xFAFD42A5, 0xA82F864F, 0x7B6872EA)
+
+	/***************************************************************************************************/
+//! Interface class to be implemented by the VST3 IAudioProcessor component (kVstAudioEffectClass).
+	class IPlugInEntryPoint : public Steinberg::FUnknown
+	{
+	public:
+		//! Get the ARA factory.
+		//! The returned pointer must remain valid throughout the lifetime of the object that provided it.
+		//! The returned ARAFactory must be equal to the ARAFactory provided by the associated IMainFactory.
+		//! To prevent ambiguities, the name of the plug-in as stored in the PClassInfo.name of this
+		//! class must match the ARAFactory.plugInName returned here.
+		virtual const ARAFactoryPtr PLUGIN_API getFactory() = 0;
+
+		//! Bind the VST3 instance to an ARA document controller, switching it from "normal" operation
+		//! to ARA mode, and exposing the ARA plug-in extension.
+		//! Note that since ARA 2.0, this call has been deprecated and replaced with
+		//! bindToDocumentControllerWithRoles ().
+		//! This deprecated call is equivalent to the new call with no known roles set, however all
+		//! ARA 1.x hosts are in fact using all instances with playback renderer, edit renderer and
+		//! editor view role enabled, so plug-ins implementing ARA 1 backwards compatibility can
+		//! safely assume those three roles to be enabled if this call was made.
+		//! Same call order rules as bindToDocumentControllerWithRoles () apply.
+		ARA_DEPRECATED(2_0_Draft) virtual const ARAPlugInExtensionInstancePtr PLUGIN_API bindToDocumentController(ARADocumentControllerRef documentControllerRef) = 0;
+
+		static const Steinberg::FUID iid;
+	};
+
+	DECLARE_CLASS_IID(IPlugInEntryPoint, 0x12814E54, 0xA1CE4076, 0x82B96813, 0x16950BD6)
 
 	//! ARA 2 extension of IPlugInEntryPoint, from the ARA SDK
 	class ARA_ADDENDUM(2_0_Draft) IPlugInEntryPoint2 : public Steinberg::FUnknown

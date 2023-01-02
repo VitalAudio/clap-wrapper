@@ -86,6 +86,7 @@ public:
 class ClapAsVst3 : public Steinberg::Vst::SingleComponentEffect
 	, public Steinberg::Vst::IMidiMapping
 	, public Steinberg::Vst::INoteExpressionController
+	, public ARA::IPlugInEntryPoint
 	, public ARA::IPlugInEntryPoint2
 	, public Clap::IHost
 	, public Clap::IAutomation
@@ -101,6 +102,7 @@ public:
 		: super()
 		, Steinberg::Vst::IMidiMapping()
  		, Steinberg::Vst::INoteExpressionController()
+		, ARA::IPlugInEntryPoint()
 		, ARA::IPlugInEntryPoint2()
 		, Clap::IHost()
 		, Clap::IAutomation()
@@ -153,6 +155,10 @@ public:
 	tresult PLUGIN_API getNoteExpressionValueByString(int32 busIndex, int16 channel, Vst::NoteExpressionTypeID id, const Vst::TChar* string /*in*/, Vst::NoteExpressionValue& valueNormalized /*out*/ ) override;
 #endif
 
+	//----from ARA::IPlugInEntryPoint
+	const ARAFactoryPtr PLUGIN_API getFactory() override;
+	const ARAPlugInExtensionInstancePtr PLUGIN_API bindToDocumentController(ARADocumentControllerRef documentControllerRef) override;
+
 	//----from ARA::IPlugInEntryPoint2---------------------------
 	const ARAPlugInExtensionInstancePtr PLUGIN_API bindToDocumentControllerWithRoles(ARADocumentControllerRef documentControllerRef,
 		ARAPlugInInstanceRoleFlags knownRoles, ARAPlugInInstanceRoleFlags assignedRoles);
@@ -164,6 +170,7 @@ public:
 		DEF_INTERFACE(INoteExpressionController)
 		if (_plugin->_ext._ara)
 		{
+			DEF_INTERFACE(IPlugInEntryPoint)
 			DEF_INTERFACE(IPlugInEntryPoint2)
 		}
 	END_DEFINE_INTERFACES(SingleComponentEffect)

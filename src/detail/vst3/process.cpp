@@ -218,7 +218,7 @@ namespace Clap
         ;
 
       _transport.song_pos_beats = doubleToBeatTime(_vstdata->processContext->projectTimeMusic);
-      _transport.song_pos_seconds = 0;
+      _transport.song_pos_seconds = doubleToSecTime((double)(_vstdata->processContext->projectTimeSamples) / 44100.0);
 
       _transport.tempo = _vstdata->processContext->tempo;
       _transport.tempo_inc = 0;
@@ -243,7 +243,7 @@ namespace Clap
       }
 
       _transport.bar_number = _vstdata->processContext->barPositionMusic;
-      _processData.steady_time = _vstdata->processContext->projectTimeSamples;
+      _processData.steady_time = -1; //  _vstdata->processContext->projectTimeSamples;
     }
 
     // setting up transport
@@ -356,7 +356,10 @@ namespace Clap
       for (int i = 0; i < inbusses; ++i)
       {
         if (_vstdata->inputs[i].numChannels > 0)
+        {
+          _input_ports[i].channel_count = _vstdata->inputs[i].numChannels;
           _input_ports[i].data32 = _vstdata->inputs[i].channelBuffers32;
+        }
         else
           doProcess = false;
       }
@@ -365,7 +368,10 @@ namespace Clap
       for (int i = 0; i < outbusses; ++i)
       {
         if (_vstdata->outputs[i].numChannels > 0)
+        {
+          _output_ports[i].channel_count = _vstdata->outputs[i].numChannels;
           _output_ports[i].data32 = _vstdata->outputs[i].channelBuffers32;
+        }
         else
           doProcess = false;
       }
