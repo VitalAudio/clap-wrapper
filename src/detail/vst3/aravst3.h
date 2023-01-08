@@ -5,7 +5,11 @@
 #include "pluginterfaces/base/funknown.h"
 #include "pluginterfaces/base/falignpush.h"
 
-// these interfaces are copied from the ARA SDK to maintain compatibility without the full ARA SDK
+// these interfaces are copied from the ARA SDK to maintain compatibility
+// without the need of the full ARA SDK
+// 
+// the types handled here are just void* for the intercommunication between
+// VST3 Host and CLAP plugin.
 
 #define ARA_DEPRECATED(x)
 #define ARA_ADDENDUM(x)
