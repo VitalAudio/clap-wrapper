@@ -9,12 +9,24 @@
 
 cmake_minimum_required(VERSION 3.20)
 cmake_policy(SET CMP0091 NEW)
+set(CMAKE_OSX_DEPLOYMENT_TARGET 10.15 CACHE STRING "Minimum macOS version")
+set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "Build Universal Always")
+
+# If your clap supports note expressions you *can* implement the wrapper extension here or you
+# can just build with this turned on and it will forward all note expressions to your CLAP
+option(CLAP_SUPPORTS_ALL_NOTE_EXPRESSIONS "Does the underlying CLAP support note expressions" OFF)
 
 project(clap-wrapper
 	LANGUAGES C CXX
 	VERSION 0.0.4
 	DESCRIPTION "CLAP-as-X wrappers"
 )
+
+if (APPLE)
+	if (NOT (${CMAKE_GENERATOR} STREQUAL "Xcode"))
+		message(WARNING "Building the VST Wrapper on macOS with a generator other than Xcode creates invalid bundles. You selected ${CMAKE_GENERATOR}")
+	endif()
+endif()
 
 ## configuring VST3 SDK
 # plugin UI will be provided by the CLAP
@@ -96,6 +108,16 @@ set_target_properties(${pluginname} PROPERTIES LIBRARY_OUTPUT_NAME "${CLAP_WRAPP
 target_link_libraries(${pluginname} PRIVATE clap-core sdk clap-wrapper-extensions)
 message(STATUS " current source dir: ${CMAKE_CURRENT_SOURCE_DIR} ")
 target_include_directories(${pluginname} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_compile_options(${pluginname} PRIVATE
+		-DCLAP_SUPPORTS_ALL_NOTE_EXPRESSIONS=$<IF:$<BOOL:${CLAP_SUPPORTS_ALL_NOTE_EXPRESSIONS}>,1,0>
+		)
+
+if (NOT ${CLAP_VST3_TUID_STRING} STREQUAL "")
+	message(STATUS "Using cmake-specified VST3 TUID ${CLAP_VST3_TUID_STRING}")
+	target_compile_options(${pluginname} PRIVATE
+			-DCLAP_VST3_TUID_STRING="${CLAP_VST3_TUID_STRING}"
+			)
+endif()
 
 if (APPLE)
 	target_link_libraries (${pluginname} PUBLIC "-framework Foundation" "-framework CoreFoundation")

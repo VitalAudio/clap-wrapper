@@ -69,6 +69,20 @@ tresult PLUGIN_API ClapAsVst3::setActive(TBool state)
     if (!_plugin->activate())
       return kResultFalse;
     _active = true;
+
+    _processAdapter = new Clap::ProcessAdapter();
+    
+    auto supportsnoteexpression = (_expressionmap & clap_supported_note_expressions::AS_VST3_NOTE_EXPRESSION_PRESSURE);
+
+    // the processAdapter needs to know a few things to intercommunicate between VST3 host and CLAP plugin.
+
+    _processAdapter->setupProcessing(_plugin->_plugin, _plugin->_ext._params,
+      this->audioInputs, this->audioOutputs,
+      this->_largestBlocksize,
+      this->eventInputs.size(), this->eventOutputs.size(),
+      parameters, componentHandler, this,
+      supportsnoteexpression, _expressionmap & clap_supported_note_expressions::AS_VST3_NOTE_EXPRESSION_TUNING);
+    updateAudioBusses();
     
     os::attach(this);
   }
@@ -157,18 +171,6 @@ tresult PLUGIN_API ClapAsVst3::setProcessing(TBool state)
     if (!_processing)
     {
       _processing = true;
-      auto supportsnoteexpression = (_expressionmap & clap_supported_note_expressions::AS_VST3_NOTE_EXPRESSION_PRESSURE);
-
-      // the processAdapter needs to know a few things to intercommunicate between VST3 host and CLAP plugin.
-
-      _processAdapter->setupProcessing(_plugin->_plugin, _plugin->_ext._params,
-        this->audioInputs, this->audioOutputs,
-        this->_largestBlocksize,
-        this->eventInputs.size(), this->eventOutputs.size(),
-        parameters, componentHandler, this,
-        supportsnoteexpression);
-      updateAudioBusses();
-
 
       result = (_plugin->start_processing() ? Steinberg::kResultOk : Steinberg::kResultFalse);
     }
@@ -781,9 +783,9 @@ void ClapAsVst3::onIdle()
       break;
     case queueEvent::type_t::editvalue:
       {
-        auto param = (Vst3Parameter*)(parameters.getParameter(n._data._value.param_id));
+        auto param = (Vst3Parameter*)(parameters.getParameter(n._data._value.param_id & 0x7FFFFFFF));
         auto v = n._data._value.value;
-        performEdit(n._data._value.param_id, param->asVst3Value(v));
+        performEdit(param->getInfo().id, param->asVst3Value(v));
       }
       break;
     case queueEvent::type_t::editend:
@@ -801,7 +803,7 @@ void ClapAsVst3::onIdle()
     {
       // setup a ProcessAdapter just for flush with no audio
       Clap::ProcessAdapter pa;
-      pa.setupProcessing(_plugin->_plugin, _plugin->_ext._params, audioInputs, audioOutputs, 0, 0, 0, this->parameters, componentHandler, nullptr, false);
+      pa.setupProcessing(_plugin->_plugin, _plugin->_ext._params, audioInputs, audioOutputs, 0, 0, 0, this->parameters, componentHandler, nullptr, false, false);
       pa.flush();
     }
   }
